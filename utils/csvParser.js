@@ -1,29 +1,45 @@
-import { parse } from "csv-parse/sync";
 import fs from "fs";
+import path from "path";
 
-export const parseStudentCSV = (filePath) => {
+/**
+ * Parses a CSV file with columns: MatNumber, FullNames, Programme
+ * Header row is automatically skipped if detected.
+ * Returns an array of { matNumber, fullName, programme }
+ */
+export function parseStudentCSV(filePath) {
   const raw = fs.readFileSync(filePath, "utf-8");
 
-  const records = parse(raw, {
-    columns: true,
-    skip_empty_lines: true,
-    trim: true,
-    relax_column_count: true,
-  });
+  const lines = raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 
-  const normalized = records
-    .map((row) => {
-      const keys = Object.keys(row).reduce((acc, k) => {
-        acc[k.toLowerCase().replace(/\s/g, "")] = row[k];
-        return acc;
-      }, {});
+  const results = [];
 
-      return {
-        matNumber: keys.matnumber || keys.mat || keys.matno,
-        fullName: keys.fullname || keys.name,
-      };
-    })
-    .filter((r) => r.matNumber && r.fullName);
+  for (const line of lines) {
+    const columns = line.split(",").map((col) => col.trim());
 
-  return normalized;
-};
+    const [col1, col2, col3] = columns;
+
+    // ✅ Skip header row — detects if first column looks like a header
+    if (
+      col1?.toLowerCase() === "matnumber" ||
+      col1?.toLowerCase() === "mat number" ||
+      col1?.toLowerCase() === "matric" ||
+      col1?.toLowerCase() === "matric number"
+    ) {
+      continue;
+    }
+
+    // ✅ Skip rows that don't have at least matNumber and fullName
+    if (!col1 || !col2) continue;
+
+    results.push({
+      matNumber: col1.toUpperCase(),
+      fullName: col2,
+      programme: col3 || "",   // ✅ NEW — 3rd column, empty string if missing
+    });
+  }
+
+  return results;
+}

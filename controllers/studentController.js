@@ -24,7 +24,13 @@ export const uploadStudentsCSV = asyncHandler(async (req, res) => {
   const operations = parsed.map((s) => ({
     updateOne: {
       filter: { matNumber: s.matNumber.toUpperCase() },
-      update: { $setOnInsert: { ...s, matNumber: s.matNumber.toUpperCase() } },
+      update: {
+        $setOnInsert: {
+          ...s,
+          matNumber: s.matNumber.toUpperCase(),
+          // ✅ NEW — programme is spread in via ...s from csvParser
+        },
+      },
       upsert: true,
     },
   }));

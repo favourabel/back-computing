@@ -11,6 +11,12 @@ const studentSchema = new mongoose.Schema(
       index: true,
     },
     fullName: { type: String, required: true, trim: true },
+    // ✅ NEW — programme field added
+    programme: {
+      type: String,
+      trim: true,
+      default: "",
+    },
   },
   { timestamps: true }
 );

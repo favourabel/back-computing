@@ -66,6 +66,7 @@ export const loginStudent = asyncHandler(async (req, res) => {
       role: "student",
       matNumber: student.matNumber,
       fullName: student.fullName,
+      programme: student.programme,  // ✅ NEW — included in response
       level: level.trim(),
       token,
     },
