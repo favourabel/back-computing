@@ -21,14 +21,19 @@ export const uploadStudentsCSV = asyncHandler(async (req, res) => {
     throw new Error("No valid student rows found in CSV");
   }
 
+  // ✅ DEBUG — log first parsed row so we can verify in Render logs
+  console.log("🔍 First parsed row:", parsed[0]);
+  console.log("🔍 Total parsed rows:", parsed.length);
+
+  // ✅ EXPLICITLY list every field so Mongoose can't strip anything
   const operations = parsed.map((s) => ({
     updateOne: {
       filter: { matNumber: s.matNumber.toUpperCase() },
       update: {
         $setOnInsert: {
-          ...s,
           matNumber: s.matNumber.toUpperCase(),
-          // ✅ NEW — programme is spread in via ...s from csvParser
+          fullName: s.fullName,
+          programme: s.programme || "",
         },
       },
       upsert: true,
