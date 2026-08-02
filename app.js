@@ -14,8 +14,39 @@ import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const app = express();
 
+/* ------------------------------------------------------------------ */
+/* CORS — allow Vercel production + localhost dev in one config        */
+/* ------------------------------------------------------------------ */
+const allowedOrigins = [
+  FRONTEND_URL,                  // https://my-computing.vercel.app  (from .env)
+  "http://localhost:5173",       // Vite local dev
+  "http://localhost:3000",       // CRA / fallback local dev
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (Postman, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+/* Handle preflight OPTIONS for every route — MUST be before routes */
+app.options("*", cors());
+
+/* ------------------------------------------------------------------ */
+
 /* Core middleware */
-app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
