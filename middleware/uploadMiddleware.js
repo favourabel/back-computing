@@ -13,14 +13,27 @@ const storage = multer.diskStorage({
   },
 });
 
-export const uploadCSV = multer({
+// ✅ Updated — accepts both CSV and XLSX files
+export const uploadFile = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === "text/csv" || file.originalname.endsWith(".csv")) {
+    const allowedMimeTypes = [
+      "text/csv",                                                            // .csv
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  // .xlsx
+      "application/vnd.ms-excel",                                            // .xls
+    ];
+
+    const allowedExtensions = [".csv", ".xlsx", ".xls"];
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (allowedMimeTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error("Only CSV files allowed"), false);
+      cb(new Error("Only CSV or XLSX files are allowed"), false);
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit — untouched
 });
+
+// ✅ Keep old name working so nothing else breaks
+export const uploadCSV = uploadFile;

@@ -6,11 +6,14 @@ import {
   clearAllStudents,
 } from "../controllers/studentController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
-import { uploadCSV } from "../middleware/uploadMiddleware.js";
+
+// ✅ Updated — import uploadFile instead of uploadCSV
+import { uploadFile } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-router.post("/upload", protect, adminOnly, uploadCSV.single("file"), uploadStudentsCSV);
+// ✅ Updated — uploadFile instead of uploadCSV
+router.post("/upload", protect, adminOnly, uploadFile.single("file"), uploadStudentsCSV);
 router.get("/", protect, adminOnly, getAllStudents);
 router.delete("/:id", protect, adminOnly, deleteStudent);
 router.delete("/", protect, adminOnly, clearAllStudents);

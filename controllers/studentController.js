@@ -1,24 +1,29 @@
 import asyncHandler from "express-async-handler";
 import fs from "fs";
 import Student from "../models/Student.js";
-import { parseStudentCSV } from "../utils/csvParser.js";
+
+// ✅ Updated — import parseStudentFile instead of parseStudentCSV
+import { parseStudentFile } from "../utils/parseStudentFile.js";
 
 /**
- * @desc  Bulk upload students via CSV
+ * @desc  Bulk upload students via CSV or XLSX
  * @route POST /api/students/upload
  */
 export const uploadStudentsCSV = asyncHandler(async (req, res) => {
   if (!req.file) {
     res.status(400);
-    throw new Error("No CSV file uploaded");
+    // ✅ Updated error message to reflect both file types
+    throw new Error("No CSV or XLSX file uploaded");
   }
 
-  const parsed = parseStudentCSV(req.file.path);
+  // ✅ Updated — parseStudentFile handles both CSV and XLSX automatically
+  const parsed = parseStudentFile(req.file.path);
   fs.unlinkSync(req.file.path);
 
   if (parsed.length === 0) {
     res.status(400);
-    throw new Error("No valid student rows found in CSV");
+    // ✅ Updated error message to reflect both file types
+    throw new Error("No valid student rows found in the uploaded file");
   }
 
   // ✅ DEBUG — log first parsed row so we can verify in Render logs
