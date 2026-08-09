@@ -8,6 +8,7 @@ import studentRoutes from "./routes/studentRoutes.js";
 import registrationRoutes from "./routes/registrationRoutes.js";
 import candidateRoutes from "./routes/candidateRoutes.js";
 import voteRoutes from "./routes/voteRoutes.js";
+import votingRoutes from "./routes/votingRoutes.js"; // ✅ NEW
 
 /* Middleware */
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
@@ -18,15 +19,14 @@ const app = express();
 /* CORS — allow Vercel production + localhost dev in one config        */
 /* ------------------------------------------------------------------ */
 const allowedOrigins = [
-  FRONTEND_URL,                  // https://my-computing.vercel.app  (from .env)
-  "http://localhost:5173",       // Vite local dev
-  "http://localhost:3000",       // CRA / fallback local dev
+  FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (Postman, curl, server-to-server)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -41,10 +41,7 @@ app.use(
   })
 );
 
-/* Handle preflight OPTIONS for every route — MUST be before routes */
 app.options("*", cors());
-
-/* ------------------------------------------------------------------ */
 
 /* Core middleware */
 app.use(express.json({ limit: "10mb" }));
@@ -61,6 +58,7 @@ app.use("/api/students", studentRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/candidates", candidateRoutes);
 app.use("/api/votes", voteRoutes);
+app.use("/api/voting", votingRoutes); // ✅ NEW
 
 /* Error handling (must be last) */
 app.use(notFound);
